@@ -1,0 +1,7 @@
+.workbuddy/
+*.log
+.DS_Store
+Thumbs.db
+_v_*.png
+_*.png
+_shot_*.png
