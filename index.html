@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>magicJJ 学习笔记</title>
+<meta name="description" content="magicJJ 的计算机学习笔记 —— 计算机组成原理、数据库、算法、操作系统、编程开发。">
+<meta name="author" content="magicJJ">
+<meta name="theme-color" content="#fafaf8">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <header class="top">
+    <div class="wrap top-in">
+      <a class="mark" href="index.html">magicJJ</a>
+      <nav class="nav">
+        <a href="index.html" class="on">文章</a>
+        <a href="archive.html">归档</a>
+        <a href="about.html">关于</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+
+    <section class="hero">
+      <div class="row">
+        <div class="rail" aria-hidden="true">0x00</div>
+        <div>
+          <h1>学习笔记</h1>
+          <p>把没想清楚的东西写下来，是为了想清楚它。这里记录计算机底层原理与工程实践中的推导过程，不追热点，只留下能拆开讲明白的部分。</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="notes">
+
+      <article class="note">
+        <div class="row">
+          <div class="rail" aria-hidden="true">0x01</div>
+          <div>
+            <div class="note-meta">
+              <time datetime="2026-10-08">2026-10-08</time>
+              <span class="mins">12 分钟</span>
+            </div>
+            <h2><a href="post.html?id=1">从补码说起：我是如何真正理解原码、反码与补码的</a></h2>
+            <p>刚学计算机组成原理时，补码对我而言只是一句"取反加一"的口诀。直到把模运算和溢出放在一起推导，才明白它不是规定，而是让减法变成加法的自然结果 —— 加的那个 1，补的是模的差。</p>
+            <ul class="note-tags">
+              <li><a href="archive.html?tag=计算机组成原理">计算机组成原理</a></li>
+              <li><a href="archive.html?tag=数制">数制</a></li>
+            </ul>
+          </div>
+        </div>
+      </article>
+
+      <article class="note">
+        <div class="row">
+          <div class="rail" aria-hidden="true">0x11</div>
+          <div>
+            <div class="note-meta">
+              <time datetime="2026-09-27">2026-09-27</time>
+              <span class="mins">15 分钟</span>
+            </div>
+            <h2><a href="post.html?id=2">索引不是越多越好：一次慢查询排查的复盘</a></h2>
+            <p>给一张三十万行的表加了三个索引，写入反而变慢了。用 EXPLAIN 逐条分析执行计划后，我重新理解了 B+ 树索引的代价结构，也弄清楚了回表、覆盖索引与最左前缀的实际影响。</p>
+            <ul class="note-tags">
+              <li><a href="archive.html?tag=数据库">数据库</a></li>
+              <li><a href="archive.html?tag=SQL">SQL</a></li>
+              <li><a href="archive.html?tag=性能">性能</a></li>
+            </ul>
+          </div>
+        </div>
+      </article>
+
+      <article class="note">
+        <div class="row">
+          <div class="rail" aria-hidden="true">0x21</div>
+          <div>
+            <div class="note-meta">
+              <time datetime="2026-09-15">2026-09-15</time>
+              <span class="mins">11 分钟</span>
+            </div>
+            <h2><a href="post.html?id=3">动态规划：先想清楚状态，再谈转移方程</a></h2>
+            <p>很长一段时间里，我看到 DP 题就条件反射地去套模板，稍微变形就写不出来。后来强迫自己先用一句话描述"状态是什么"，转移方程反而顺理成章 —— 大部分卡壳，其实是跳过了状态定义这一步。</p>
+            <ul class="note-tags">
+              <li><a href="archive.html?tag=算法">算法</a></li>
+              <li><a href="archive.html?tag=动态规划">动态规划</a></li>
+            </ul>
+          </div>
+        </div>
+      </article>
+
+      <article class="note">
+        <div class="row">
+          <div class="rail" aria-hidden="true">0x41</div>
+          <div>
+            <div class="note-meta">
+              <time datetime="2026-09-03">2026-09-03</time>
+              <span class="mins">9 分钟</span>
+            </div>
+            <h2><a href="post.html?id=4">把 Git 当成时间机器：从提交历史谈代码阅读</a></h2>
+            <p>git blame 和 git log -p 是我读开源项目时用得最多的两个命令。代码不只有"现在长什么样"，还有"为什么变成这样" —— 把它放回时间里去看，很多困惑会自动消解。</p>
+            <ul class="note-tags">
+              <li><a href="archive.html?tag=编程开发">编程开发</a></li>
+              <li><a href="archive.html?tag=工具">工具</a></li>
+            </ul>
+          </div>
+        </div>
+      </article>
+
+      <article class="note">
+        <div class="row">
+          <div class="rail" aria-hidden="true">0x31</div>
+          <div>
+            <div class="note-meta">
+              <time datetime="2026-08-21">2026-08-21</time>
+              <span class="mins">13 分钟</span>
+            </div>
+            <h2><a href="post.html?id=5">进程与线程：从一次上下文切换的开销聊起</a></h2>
+            <p>操作系统课上讲进程切换很抽象，我试着从寄存器保存、页表切换、缓存失效三个层面估算它的实际开销，才理解"线程比进程轻"这句话背后，省的其实是其中最贵的那一项。</p>
+            <ul class="note-tags">
+              <li><a href="archive.html?tag=操作系统">操作系统</a></li>
+              <li><a href="archive.html?tag=并发">并发</a></li>
+            </ul>
+          </div>
+        </div>
+      </article>
+
+      <article class="note">
+        <div class="row">
+          <div class="rail" aria-hidden="true">0x42</div>
+          <div>
+            <div class="note-meta">
+              <time datetime="2026-08-09">2026-08-09</time>
+              <span class="mins">8 分钟</span>
+            </div>
+            <h2><a href="post.html?id=6">写好注释的前提，是代码本身已经足够清楚</a></h2>
+            <p>我曾经用注释去弥补糟糕的命名，结果是注释和代码一起变得难以维护。好的命名和拆分本身就是最高性价比的文档 —— 它不会过期，也不需要维护两份。</p>
+            <ul class="note-tags">
+              <li><a href="archive.html?tag=编程开发">编程开发</a></li>
+              <li><a href="archive.html?tag=随笔">随笔</a></li>
+            </ul>
+          </div>
+        </div>
+      </article>
+
+    </section>
+
+  </main>
+
+  <footer class="foot">
+    <div class="wrap foot-in">
+      <span>magicJJ 学习笔记</span>
+      <span>慢一点，但要想清楚</span>
+    </div>
+  </footer>
+
+  <script src="script.js" defer></script>
+</body>
+</html>

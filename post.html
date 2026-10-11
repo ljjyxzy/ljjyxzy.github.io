@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>文章 · magicJJ</title>
+<meta name="description" content="magicJJ 的学习笔记 —— 文章正文。">
+<meta name="author" content="magicJJ">
+<meta name="theme-color" content="#fafaf8">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <header class="top">
+    <div class="wrap top-in">
+      <a class="mark" href="index.html">magicJJ</a>
+      <nav class="nav">
+        <a href="index.html" class="on">文章</a>
+        <a href="archive.html">归档</a>
+        <a href="about.html">关于</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+
+    <a class="back" href="index.html">← 返回列表</a>
+
+    <div class="art-stack">
+
+      <article class="art" data-post="1">
+
+        <header class="art-head">
+          <div class="row">
+            <div class="rail" aria-hidden="true">0x01</div>
+            <div>
+              <div class="note-meta">
+                <time datetime="2026-10-08">2026-10-08</time>
+                <span class="mins">12 分钟</span>
+              </div>
+              <h1>从补码说起：我是如何真正理解原码、反码与补码的</h1>
+              <ul class="note-tags">
+              <li><a href="archive.html?tag=计算机组成原理">计算机组成原理</a></li>
+              <li><a href="archive.html?tag=数制">数制</a></li>
+              </ul>
+            </div>
+          </div>
+        </header>
+
+        <div class="row">
+          <div class="rail" aria-hidden="true"></div>
+          <div class="body-text">
+          <p>刚学计算机组成原理的时候，我对补码的全部认知就是一句口诀：「取反加一」。考试能过，题也能算对，但我心里一直有个疙瘩 —— 为什么偏偏是"加一"？这个 1 是从哪儿冒出来的？</p>
+
+          <p>直到后来把模运算和溢出放在一起推导了一遍，我才明白：补码根本不是某个人拍脑袋规定的编码方式，它是<strong>让减法变成加法之后，必然会长成的那个样子</strong>。</p>
+
+          <h2>先忘掉编码表，想想钟表</h2>
+
+          <p>时钟是理解这套东西最好的例子。现在是 10 点，我想让它回到 8 点，有两种办法：</p>
+
+          <ul>
+            <li>逆时针拨 2 小时（减 2）</li>
+            <li>顺时针拨 10 小时（加 10）</li>
+          </ul>
+
+          <p>两个办法结果一样。因为钟面只有 12 个刻度，<code>12</code> 这个量程溢出了，加 10 和减 2 在"模 12"的世界里是同一件事。这里的 12 就是<strong>模</strong>。</p>
+
+          <p>8 位二进制同理。它的量程是 2⁸ = 256，所以在这个世界里：</p>
+
+          <pre><code>-1  等价于  255
+-7  等价于  249
+-128 等价于 128</code></pre>
+
+          <p>所谓"负数的补码"，就是把负数翻译成这个量程里和它<strong>同余的那个正数</strong>。</p>
+
+          <h2>"取反加一"原来只是个巧合</h2>
+
+          <p>有了上面的铺垫，再看那个让我纠结很久的"加一"：</p>
+
+          <pre><code>  7 的原码    0000 0111
+取反          1111 1000
+加一          1111 1001   →  这就是 -7
+
+验算一下：
+  7 + (-7) = 0000 0111 + 1111 1001
+           = 1 0000 0000
+           = 0 （最高位溢出，8 位寄存器只留下后 8 位）</code></pre>
+
+          <p>看到了吗？之所以要"+1"，是因为按位取反得到的是 <code>255 - 7 = 248</code>，它是 <code>-7</code> 在"模 255"下的同余数；而我们要的是"模 256"下的同余数 <code>249</code>。两者差 1。</p>
+
+          <p><strong>所以加的那个 1，补的是模的差。</strong>它从来就不是什么神秘规则。</p>
+
+          <h2>为什么这么折腾值得</h2>
+
+          <p>因为电路做减法很贵。如果符号位要单独判断、还要比较两个数的绝对值大小来决定谁减谁，硬件复杂度会直线上升。而一旦用上补码：</p>
+
+          <ul>
+            <li>符号位直接参与运算，不需要特判</li>
+            <li>减法器可以彻底不要，全部走加法器</li>
+            <li><code>A - B</code> 就变成 <code>A + (-B)</code>，一条通路搞定</li>
+          </ul>
+
+          <p>代价是"0"只有一种表示（原码里有 +0 和 -0 两个），反而更干净了。这个取舍在工程上赚翻了。</p>
+
+          <h2>一个我踩过的坑</h2>
+
+          <p>补码表示的范围是不对称的。8 位补码能表示 <code>-128 ~ 127</code>，负数比正数多一个。我第一次写嵌入式 C 的时候，把一个 <code>int8_t</code> 赋成 <code>-128</code> 再取反，结果还是 <code>-128</code>，愣了半天。</p>
+
+          <p>原因就是：它没有对应的 <code>+128</code> 可以回去，取反溢出后绕回了自己。这类边界值在做定点数运算和嵌入式数值处理时特别容易咬人。</p>
+
+          <h2>小结</h2>
+
+          <p>回头看，我卡了那么久，是因为教材上来就丢给我"定义"，而我需要的其实是"动机"。一旦接受了"减法想变成加法"这个目标，补码的形式几乎是唯一解。</p>
+
+          <p>后来我养成了一个习惯：学任何编码或协议之前，先问一句"它到底在解决什么问题"。大多数看似生硬的规定，背后都有一个很朴素的工程理由。</p>
+          </div>
+        </div>
+
+      </article>
+
+      <article class="art" data-post="2">
+
+        <header class="art-head">
+          <div class="row">
+            <div class="rail" aria-hidden="true">0x11</div>
+            <div>
+              <div class="note-meta">
+                <time datetime="2026-09-27">2026-09-27</time>
+                <span class="mins">15 分钟</span>
+              </div>
+              <h1>索引不是越多越好：一次慢查询排查的复盘</h1>
+              <ul class="note-tags">
+              <li><a href="archive.html?tag=数据库">数据库</a></li>
+              <li><a href="archive.html?tag=SQL">SQL</a></li>
+              <li><a href="archive.html?tag=性能">性能</a></li>
+              </ul>
+            </div>
+          </div>
+        </header>
+
+        <div class="row">
+          <div class="rail" aria-hidden="true"></div>
+          <div class="body-text">
+          <p>起因是课程设计里的一张订单表，三十万行数据。分页查询要三秒多，我的第一反应是把 WHERE 条件里出现的字段全加上索引 —— 一共加了三个。</p>
+
+          <p>查是快了，写入肉眼可见地变慢，导入一批测试数据从几秒涨到几十秒。这才迫使我去认真看索引到底在做什么。</p>
+
+          <h2>先看执行计划说了什么</h2>
+
+          <pre><code>EXPLAIN SELECT * FROM orders
+WHERE user_id = 42 AND status = 'paid'
+ORDER BY created_at DESC LIMIT 20;</code></pre>
+
+          <p>我盯着几个字段看：<code>type</code> 告诉我它用了哪种访问方式，<code>key</code> 是实际选中的索引，<code>rows</code> 是预计扫描行数，<code>Extra</code> 里如果蹦出 <code>Using filesort</code>，说明排序没能走索引。</p>
+
+          <p>关键发现：<strong>MySQL 一条查询通常只用 one 个索引</strong>（除非触发索引合并）。我加的三个独立索引，优化器只会挑它认为最划算的那个，另外两个在查询里基本是白占地方。</p>
+
+          <h2>索引的代价藏在哪</h2>
+
+          <p>B+ 树索引不是免费的午餐，它的代价至少有三处：</p>
+
+          <ul>
+            <li><strong>空间</strong>：每个索引都是一棵完整的树，要单独占磁盘</li>
+            <li><strong>写入</strong>：每次 INSERT / UPDATE / DELETE 都要同步维护所有索引树，索引越多写越慢</li>
+            <li><strong>优化器的判断成本</strong>：候选索引多了，它挑错的概率也会上升</li>
+          </ul>
+
+          <p>我那张表写多读少，加三个单列索引纯粹是赔本买卖。</p>
+
+          <h2>几个真正有用的概念</h2>
+
+          <p><strong>回表。</strong> 二级索引的叶子节点存的是主键值，不是整行数据。如果 SELECT 的字段不在索引里，就要拿着主键再回主键树查一次，这次额外的查找就是回表。回表次数多了，甚至可能不如直接全表扫描。</p>
+
+          <p><strong>覆盖索引。</strong> 如果索引里已经包含了查询需要的全部字段，就不用回表了。<code>Extra</code> 里出现 <code>Using index</code> 就表示命中了。</p>
+
+          <pre><code>-- 建一个覆盖索引，把 status 和 created_at 也带上
+CREATE INDEX idx_user_status_time
+  ON orders(user_id, status, created_at);</code></pre>
+
+          <p><strong>最左前缀。</strong> 联合索引 <code>(user_id, status, created_at)</code> 相当于同时有了 <code>(user_id)</code>、<code>(user_id, status)</code> 和完整三列的检索能力。但要是单独拿 <code>status</code> 去查，它就用不上 —— 因为跳过了最左边那列。</p>
+
+          <h2>我最后的改法</h2>
+
+          <ol>
+            <li>删掉那三个各自为政的单列索引</li>
+            <li>按实际的查询条件顺序，建一个联合索引 <code>(user_id, status, created_at)</code></li>
+            <li>分页从 <code>LIMIT offset, size</code> 改成基于 <code>created_at</code> 的游标式翻页，避免深翻页时扫描并丢弃大量行</li>
+          </ol>
+
+          <p>查询降到毫秒级，写入也没再拖后腿。表上的索引从 3 个变成 1 个，反而更快。</p>
+
+          <h2>小结</h2>
+
+          <p>这件事给我最大的教训是：<strong>索引是给"查询模式"服务的，不是给"字段"服务的。</strong></p>
+
+          <p>脱离真实的 SQL 去谈"这个字段要不要加索引"，基本是在猜。现在我的顺序是：先看有哪些高频查询 → 再看它们的 WHERE / ORDER BY 组合 → 最后才设计索引。而且宁愿少加，也不凭感觉多加。</p>
+          </div>
+        </div>
+
+      </article>
+
+      <article class="art" data-post="3">
+
+        <header class="art-head">
+          <div class="row">
+            <div class="rail" aria-hidden="true">0x21</div>
+            <div>
+              <div class="note-meta">
+                <time datetime="2026-09-15">2026-09-15</time>
+                <span class="mins">11 分钟</span>
+              </div>
+              <h1>动态规划：先想清楚状态，再谈转移方程</h1>
+              <ul class="note-tags">
+              <li><a href="archive.html?tag=算法">算法</a></li>
+              <li><a href="archive.html?tag=动态规划">动态规划</a></li>
+              </ul>
+            </div>
+          </div>
+        </header>
+
+        <div class="row">
+          <div class="rail" aria-hidden="true"></div>
+          <div class="body-text">
+          <p>有一阵子我做 DP 题的流程是这样的：读题 → 觉得眼熟 → 从脑子里翻一个模板往上套 → 套不上就看题解 → 看懂了 → 关掉题解还是写不出来。</p>
+
+          <p>重复了很多轮之后我意识到，问题不在模板记得不熟，而在于我<strong>跳过了最重要的一步</strong>。</p>
+
+          <h2>被跳过的一步</h2>
+
+          <p>DP 有两个要素：状态定义，和状态转移方程。我以前是直接冲着第二个去的 —— 因为它是写在代码里的那个部分，看起来最"实在"。但真正决定这题能不能做出来的，是第一个。</p>
+
+          <p>状态定义回答的是：<strong>这个数组（或这个二维数组）的每一个格子，到底代表什么。</strong></p>
+
+          <p>这句话说不清楚，转移方程就只能靠背。</p>
+
+          <h2>用最长递增子序列走一遍</h2>
+
+          <p>经典题：给一个数组，求最长严格递增子序列的长度。</p>
+
+          <p>我先逼自己用一句中文把状态说清楚：</p>
+
+          <blockquote><code>dp[i]</code> 表示：以第 i 个元素<strong>作为结尾</strong>的最长递增子序列的长度。</blockquote>
+
+          <p>注意"作为结尾"这四个字是关键。它不是"前 i 个元素里的最长"，而是"必须以 nums[i] 收尾"。加了这个约束之后，转移就变得很自然：</p>
+
+          <p>我要算 <code>dp[i]</code>，那就看前面所有位置 j。只要 <code>nums[j] &lt; nums[i]</code>，我就可以把 <code>nums[i]</code> 接在 <code>dp[j]</code> 代表的那条子序列后面，长度变成 <code>dp[j] + 1</code>。取最大值。</p>
+
+          <pre><code>dp = [1] * n                 # 每个元素至少能自成一条
+for i in range(n):
+    for j in range(i):
+        if nums[j] &lt; nums[i]:
+            dp[i] = max(dp[i], dp[j] + 1)
+return max(dp)               # 答案是全局最大，不是 dp[-1]</code></pre>
+
+          <p>写出这段代码几乎没花力气，因为方程早在那一句中文定义里就写完了。</p>
+
+          <p>顺带一提，<code>return max(dp)</code> 而不是 <code>dp[n-1]</code>，这也是状态定义直接决定的结果 —— 最长那条不一定以最后一个元素结尾。</p>
+
+          <h2>如果一句话说不清楚状态</h2>
+
+          <p>这种情况我现在会当成信号：多半是维度不够，或者约束条件漏了。</p>
+
+          <p>比如背包问题里，"前 i 个物品、容量 j、能装的最大价值"这句话一旦完整说出来，二维数组的形状就已经确定了。如果说的时候要加"但是……""还有一种情况是……"，那通常意味着需要再加一维（常见于状态机 DP、区间 DP）。</p>
+
+          <h2>我现在的做题顺序</h2>
+
+          <ol>
+            <li>先用一句中文写出状态定义，写在草稿纸上</li>
+            <li>确认边界：<code>dp</code> 的初始值是什么，答案是从哪儿取</li>
+            <li>推导转移：这个格子能从哪些格子来</li>
+            <li>确认遍历顺序：算 <code>dp[i]</code> 时，它依赖的那些格子是不是已经算过了</li>
+            <li>最后才写代码</li>
+          </ol>
+
+          <p>第 4 步以前经常被我忽略，然后对着数组越界或者结果不对发呆半天。</p>
+
+          <h2>小结</h2>
+
+          <p>模板的价值在于帮你快速认出题目，但它替代不了思考。真正让我从"看懂题解"走到"自己写出来"的，是老老实实把状态定义讲清楚这一步。</p>
+
+          <p>现在我遇到卡住的 DP 题，几乎不会再急着去找递归式了，而是回到那句话上重问一遍：<strong>这个格子，到底代表什么？</strong></p>
+          </div>
+        </div>
+
+      </article>
+
+      <article class="art" data-post="4">
+
+        <header class="art-head">
+          <div class="row">
+            <div class="rail" aria-hidden="true">0x41</div>
+            <div>
+              <div class="note-meta">
+                <time datetime="2026-09-03">2026-09-03</time>
+                <span class="mins">9 分钟</span>
+              </div>
+              <h1>把 Git 当成时间机器：从提交历史谈代码阅读</h1>
+              <ul class="note-tags">
+              <li><a href="archive.html?tag=编程开发">编程开发</a></li>
+              <li><a href="archive.html?tag=工具">工具</a></li>
+              </ul>
+            </div>
+          </div>
+        </header>
+
+        <div class="row">
+          <div class="rail" aria-hidden="true"></div>
+          <div class="body-text">
+          <p>第一次打开一个正经的开源项目代码时，我是从上往下读的，像读课本一样。读了两天，记住的东西不到十分之一。</p>
+
+          <p>后来我换了个思路 —— 不再把代码当成"现在长什么样"，而是去追"它为什么变成这样"。效率完全不一样。</p>
+
+          <h2>两个用得最多的命令</h2>
+
+          <pre><code># 这个文件每一行最后是谁改的、什么时候改的
+git blame -L 120,140 src/main.c
+
+# 跟着这个文件一路走过来的全部改动（含重命名）
+git log -p --follow -- src/main.c</code></pre>
+
+          <p><code>git blame</code> 适合 pinpoint：看到某段奇怪的代码，立刻知道是谁在什么背景下写的，还能顺藤摸瓜找到那个 commit。</p>
+
+          <p><code>git log -p</code> 则像在看这部文件的发展史。配合 <code>--follow</code> 可以跨重命名追踪，不会半路断掉。</p>
+
+          <h2>关键是看 commit 本身</h2>
+
+          <p>真正的收获往往不在代码 diff，而在<strong>那个 commit 的提交信息和它前后的几个 commit</strong>。</p>
+
+          <p>一段现在看起来很绕的判断，可能当初只是为了修某个很特殊的边界 case；一个奇怪的 <code>+1</code>，可能对应着一次踩过坑的修复。知道了动机之后，这段代码就不再"莫名其妙"，我能判断它现在还成不成立、能不能放心删。</p>
+
+          <pre><code># 只看涉及某段逻辑的提交，还能搜 commit 信息
+git log --oneline -S"retry_count"
+git log --grep="fix: timeout"</code></pre>
+
+          <h2>几个实践习惯</h2>
+
+          <ul>
+            <li><strong>先 <code>git log</code> 再读代码。</strong> 花十分钟扫一遍提交历史，对项目脉络有个大概印象，比直接扎进文件里强得多。</li>
+            <li><strong>遇到看不懂的就 blame。</strong> 不要硬猜，直接问作者（问 Git）。</li>
+            <li><strong>善用分支比较。</strong> <code>git diff main..feature</code> 能把这个特性到底改了哪些地方一次性摊开看。</li>
+          </ul>
+
+          <h2>反过来，对自己的提交</h2>
+
+          <p>读了别人一堆历史之后，我对自己写 commit message 也变得更认真了。因为我知道将来会有人（大概率是我自己三个月后）用 <code>git log</code> 来读懂这次改动。</p>
+
+          <p>现在我会尽量<strong>在提交信息里写"为什么"，而不是"改了什么"</strong> —— 后者 diff 已经说清楚了，前者才是 diff 里看不到的东西。</p>
+
+          <h2>小结</h2>
+
+          <p>代码是一个过程的产物，不是凭空出现的文本。把它放回时间里去看，很多困惑会自动消解。</p>
+
+          <p>这也是我觉得 Git 最被低估的地方：它不只是版本管理工具，它是一台记录着项目全部思考过程的机器。</p>
+          </div>
+        </div>
+
+      </article>
+
+      <article class="art" data-post="5">
+
+        <header class="art-head">
+          <div class="row">
+            <div class="rail" aria-hidden="true">0x31</div>
+            <div>
+              <div class="note-meta">
+                <time datetime="2026-08-21">2026-08-21</time>
+                <span class="mins">13 分钟</span>
+              </div>
+              <h1>进程与线程：从一次上下文切换的开销聊起</h1>
+              <ul class="note-tags">
+              <li><a href="archive.html?tag=操作系统">操作系统</a></li>
+              <li><a href="archive.html?tag=并发">并发</a></li>
+              </ul>
+            </div>
+          </div>
+        </header>
+
+        <div class="row">
+          <div class="rail" aria-hidden="true"></div>
+          <div class="body-text">
+          <p>操作系统课上讲进程切换，对我而言一直是句抽象的话："保存现场，恢复现场"。考试会写，但我脑子里没有任何量级概念。</p>
+
+          <p>直到有一次我试着把它的开销拆开估算了一遍，才发现"线程比进程轻量"这句被说烂的话，背后其实有一套很具体的代价模型。</p>
+
+          <h2>切换一次到底要干什么</h2>
+
+          <p>粗略地看，一次上下文切换的成本至少来自三处：</p>
+
+          <h3>1. 保存和恢复寄存器</h3>
+
+          <p>CPU 里那些通用寄存器、程序计数器、栈指针，都是当前任务的状态。切换时得先把它全部存进内核栈，回来时再填回去。这部分是纯搬运 unavoidable。</p>
+
+          <h3>2. 地址空间的切换</h3>
+
+          <p>这是进程切换真正贵的地方。切进程意味着要换页表（更新 CR3 之类的页表基址寄存器），随之而来的是 TLB 被打垮 —— 之前缓存的虚拟地址到物理地址的映射基本作废，新进程刚开始跑的那段时间会密集发生 TLB miss。</p>
+
+          <p>而线程切换共享同一个地址空间，<strong>这一步直接省掉</strong>。</p>
+
+          <h3>3. 缓存的冷启动</h3>
+
+          <p>CPU 各级 cache 里装的还是上一个任务的数据和指令。换人之后的一段时间内，cache miss 率会显著上升，要重新把工作集 warming up 起来。</p>
+
+          <p>同理，同进程内的线程切换，如果工作集接近，这部分的损失会小一些。</p>
+
+          <h2>所以"线程轻"在哪里</h2>
+
+          <p>把上面三点摊开，答案就很清楚了：</p>
+
+          <ul>
+            <li>寄存器保存 —— 两者都要</li>
+            <li>页表切换 + TLB 失效 —— <strong>只有进程切换要</strong></li>
+            <li>cache 冷启动 —— 两者都有，线程间通常更轻</li>
+          </ul>
+
+          <p>线程的优势不是"什么都快"，而是<strong>省掉了最贵的那一项</strong>。</p>
+
+          <h2>一个我以前理解错的地方</h2>
+
+          <p>我一度以为线程切换就一定便宜。后来看到资料才纠正过来：如果是跨核迁移、或者线程间工作集差异很大导致 cache 大量失效，开销也可能不低。</p>
+
+          <p>另外，切换本身还涉及内核态/用户态的转换、调度器的选择逻辑，这些开销和"进程还是线程"无关，是纯粹的切换代价。</p>
+
+          <h2>对写代码的实际影响</h2>
+
+          <p>想明白这套模型之后，我对几个常见说法有了更实在的判断：</p>
+
+          <ul>
+            <li>"多进程更稳定" —— 因为地址空间隔离，一个崩了不拖累别的。代价是切换贵、通信要走 IPC。</li>
+            <li>"多线程要小心共享数据" —— 正因为共享地址空间才便宜，也正因如此才需要锁。</li>
+            <li>"协程很轻" —— 它连内核态都不用进，切换在用户态完成，省的就是前面第一项和内核转换的部分。</li>
+          </ul>
+
+          <p>这些取舍从来不是非黑即白，而是在"隔离性、切换成本、通信成本"三者之间权衡。</p>
+
+          <h2>小结</h2>
+
+          <p>把一个抽象结论还原成具体的代价项，是我这学期觉得最有用的一种学习方法。</p>
+
+          <p>"线程更轻"不再是一句需要背的话，而是一句我能拆开讲清楚的话。这种理解在面试聊并发模型，或者真的要在线程池和多进程之间做选择时，比背十条结论都管用。</p>
+          </div>
+        </div>
+
+      </article>
+
+      <article class="art" data-post="6">
+
+        <header class="art-head">
+          <div class="row">
+            <div class="rail" aria-hidden="true">0x42</div>
+            <div>
+              <div class="note-meta">
+                <time datetime="2026-08-09">2026-08-09</time>
+                <span class="mins">8 分钟</span>
+              </div>
+              <h1>写好注释的前提，是代码本身已经足够清楚</h1>
+              <ul class="note-tags">
+              <li><a href="archive.html?tag=编程开发">编程开发</a></li>
+              <li><a href="archive.html?tag=随笔">随笔</a></li>
+              </ul>
+            </div>
+          </div>
+        </header>
+
+        <div class="row">
+          <div class="rail" aria-hidden="true"></div>
+          <div class="body-text">
+          <p>我以前写代码有个坏习惯：写完之后觉得有些地方连自己都看不懂，就在旁边补一行注释说明它干什么。当时觉得这叫"负责任"。</p>
+
+          <p>后来维护自己三个月前的代码时才发现，那些注释和它解释的那段烂代码一起，变成了双倍的心智负担 —— 而且很多时候<strong>注释已经和实现脱节了</strong>。</p>
+
+          <h2>那个转折点</h2>
+
+          <pre><code># 重构前
+def f(a, b):
+    # t 是税率，VIP 用户减免
+    return a * 0.13 if b else a * 0.06</code></pre>
+
+          <p>这行注释在当时是有用的，因为它弥补了 <code>f</code>、<code>a</code>、<code>b</code> 这些名字传递不了任何信息。但我后来意识到：<strong>注释在这里扮演的是创可贴的角色。</strong></p>
+
+          <pre><code># 重构后
+VIP_TAX_RATE = 0.06
+STANDARD_TAX_RATE = 0.13
+
+def calculate_tax(order_amount, is_vip):
+    rate = VIP_TAX_RATE if is_vip else STANDARD_TAX_RATE
+    return order_amount * rate</code></pre>
+
+          <p>改完之后，注释一句都不需要了。而且它获得了注释给不了的好处：如果哪天改了 <code>VIP_TAX_RATE</code>，读代码的人不会漏掉藏在注释里的信息 —— 因为信息本身就在代码里。</p>
+
+          <h2>我现在的判断顺序</h2>
+
+          <p>当我"想写注释"的时候，先停一下问自己：</p>
+
+          <ol>
+            <li><strong>是不是因为我起了个坏名字？</strong> 如果是，先改名字。</li>
+            <li><strong>是不是这段代码做了太多事？</strong> 如果是，先拆函数。</li>
+            <li><strong>是不是某个魔法数字？</strong> 如果是，提成常量。</li>
+            <li>以上都排除了，还是有必要说明 —— 那才写注释。</li>
+          </ol>
+
+          <p>大部分"想写注释"的冲动，会在前两步就消解掉。</p>
+
+          <h2>那什么情况下该写</h2>
+
+          <p>剩下的这些，才是注释真正的主场：</p>
+
+          <ul>
+            <li><strong>解释为什么，而不是做了什么。</strong> 代码能说明它做了什么，但说明不了当初为什么这么选。</li>
+            <li><strong>记录不明显的坑。</strong> 比如某个依赖库的古怪行为、某个看起来多余但不能删的判断。</li>
+            <li><strong>标明 TODO 和已知限制。</strong></li>
+            <li><strong>给一段复杂算法指路。</strong> 写清楚思路来源或论文出处，比逐行翻译有用得多。</li>
+          </ul>
+
+          <p>一个典型的好注释：</p>
+
+          <pre><code># 这里必须先 sleep 再重试：上游接口在 429 之后
+# 有一小段窗口期会继续拒绝，立刻重试必失败。
+time.sleep(backoff)</code></pre>
+
+          <p>它解释的东西，diff 里完全看不出来。</p>
+
+          <h2>小结</h2>
+
+          <p>好的命名和拆分，本身就是最高性价比的文档 —— 它不会过期，也不需要维护两份。</p>
+
+          <p>注释的价值在于补上<strong>代码表达不了的那部分信息</strong>，而不是把代码再翻译一遍。想明白这一点之后，我写的注释变少了，但每条都更有分量。</p>
+          </div>
+        </div>
+
+      </article>
+
+    </div>
+
+    <nav class="pn" aria-label="文章导航">
+      <a id="prev-post" href="#">← 上一篇</a>
+      <a id="next-post" href="#">下一篇 →</a>
+    </nav>
+
+  </main>
+
+  <footer class="foot">
+    <div class="wrap foot-in">
+      <span>magicJJ 学习笔记</span>
+      <span>慢一点，但要想清楚</span>
+    </div>
+  </footer>
+
+  <script src="script.js" defer></script>
+</body>
+</html>
