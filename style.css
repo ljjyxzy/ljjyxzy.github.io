@@ -39,7 +39,7 @@
 
   /* 布局：左侧地址栏宽度 */
   --rail:      64px;
-  --content:   820px;
+  --content:   1200px;
 
   --ease: cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -219,9 +219,9 @@ a {
 
 .note p {
   margin: 0 0 14px;
-  max-width: 40em;
-  font-size: var(--fs-body);
-  line-height: 1.85;
+  max-width: 52em;
+  font-size: 17px;
+  line-height: 1.8;
   color: var(--ink-mid);
 }
 
@@ -306,6 +306,7 @@ a {
 
 .body-text {
   padding: 24px 0 0;
+  max-width: 42em;
   font-size: var(--fs-lead);
   line-height: 1.9;
   color: var(--ink);
