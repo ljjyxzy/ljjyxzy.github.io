@@ -306,10 +306,22 @@ a {
 
 .body-text {
   padding: 24px 0 0;
-  max-width: 42em;
   font-size: var(--fs-lead);
   line-height: 1.9;
   color: var(--ink);
+}
+
+/* 正文行宽限制逐元素生效：文字保持舒适行宽，
+   图片块则可占满整列宽度 */
+.body-text p,
+.body-text h2,
+.body-text h3,
+.body-text ul,
+.body-text ol,
+.body-text blockquote,
+.body-text pre,
+.body-text .pn {
+  max-width: 42em;
 }
 
 .body-text p { margin: 0 0 26px; }
@@ -374,6 +386,52 @@ a {
 }
 
 .body-text a:hover { border-bottom-color: var(--ink); }
+
+/* ---------- 正文插图 ---------- */
+
+/* 单张配图：不铺满，控制高度，与正文行宽相称 */
+.fig {
+  margin: 44px 0;
+}
+
+.fig img {
+  display: block;
+  width: 100%;
+  max-width: 720px;
+  height: auto;
+  border-radius: 2px;
+  background: var(--panel);
+}
+
+/* 图片集：三列网格，横向排列（看完一行再看下一行）
+   不裁剪图片，竖版横版各留原比例 */
+.gallery {
+  margin: 48px 0;
+}
+
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.gallery-grid img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 2px;
+  background: var(--panel);
+}
+
+.gallery figcaption,
+.fig figcaption {
+  margin-top: 14px;
+  font-family: var(--mono);
+  font-size: var(--fs-meta);
+  line-height: 1.7;
+  color: var(--ink-ghost);
+}
 
 /* 上一篇 / 下一篇 */
 .pn {
