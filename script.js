@@ -44,8 +44,8 @@
     // 上一篇 / 下一篇
     var prev = $('#prev-post'), next = $('#next-post');
     if (prev) {
-      if (id > 1) {
-        prev.setAttribute('href', 'post.html?id=' + (id - 1));
+      if (id < total) {
+        prev.setAttribute('href', 'post.html?id=' + (id + 1));
         prev.classList.remove('hide');
       } else {
         prev.classList.add('hide');
@@ -53,8 +53,8 @@
       }
     }
     if (next) {
-      if (id < total) {
-        next.setAttribute('href', 'post.html?id=' + (id + 1));
+      if (id > 1) {
+        next.setAttribute('href', 'post.html?id=' + (id - 1));
         next.classList.remove('hide');
       } else {
         next.classList.add('hide');

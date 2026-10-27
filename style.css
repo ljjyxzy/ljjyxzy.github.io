@@ -11,8 +11,8 @@
   --panel:      #f2f2ec;
   --ink:        #1a1a18;
   --ink-mid:    #6b6b62;
-  --ink-soft:   #8a8a82;
-  --ink-ghost:  #b0b0a8;
+  --ink-soft:   #686860;
+  --ink-ghost:  #707068;
 
   /* 分隔线 */
   --rule:       #ddddd4;
@@ -551,11 +551,36 @@ button:focus-visible {
   outline-offset: 3px;
 }
 
-/* ---------- 固定 PC 版布局 ----------
-   刻意不做窄屏适配：所有设备（含手机）统一按
-   PC 版渲染，页面整体等比缩放显示。
-   若要恢复响应式，重新加上 max-width 断点并
-   把各页 viewport 改回 width=device-width 即可。 */
+/* ---------- 窄屏布局 ---------- */
+
+@media (max-width: 760px) {
+  :root {
+    --rail: 42px;
+    --fs-lead: 16px;
+    --fs-title: 20px;
+    --fs-hero: 34px;
+  }
+
+  .wrap { padding: 0 18px; }
+  .top-in { height: 52px; }
+  .nav { gap: 16px; }
+  .banner { padding-top: 24px; }
+  .banner img { height: 120px; }
+  .hero { padding: 36px 0 42px; }
+  .hero h1 { margin-bottom: 14px; }
+  .hero p { line-height: 1.75; }
+  .note { padding: 26px 0; }
+  .note p { font-size: 16px; line-height: 1.75; }
+  .back { margin-top: 30px; }
+  .art { padding-top: 30px; }
+  .art-head h1 { font-size: 30px; }
+  .body-text { font-size: 17px; line-height: 1.85; }
+  .body-text h2 { margin-top: 42px; }
+  .gallery { margin: 36px 0; }
+  .gallery-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .pn { margin-top: 48px; padding-bottom: 56px; }
+  .prose { padding-bottom: 56px; }
+}
 
 /* 尊重减少动效 */
 @media (prefers-reduced-motion: reduce) {
